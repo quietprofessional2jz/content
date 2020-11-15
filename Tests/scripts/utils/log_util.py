@@ -108,7 +108,7 @@ def install_logging(log_file_name: str, include_process_name=False) -> str:
 def install_simple_logging():
     """
     This method implements logging module to print the message only with colors
-    This function is implemented to support backward compatibility for functions that cannot yes support the full
+    This function is implemented to support backward compatibility for functions that cannot yet support the full
     `install_logging` method capabilities
     """
     if not hasattr(logging, 'success'):
@@ -134,7 +134,7 @@ class ParallelLoggingManager:
     >>> logging_manager.success('success message')
     # The 'exception method should be called only within exception handling context
     >>> logging_manager.exception('exception message')
-    # The logs will be sent to the hanlers only when the 'execute_logs' method will be called by
+    # The logs will be sent to the handlers only when the 'execute_logs' method will be called by
      the thread who wrote the log messages in the first place
     >>> logging_manager.execute_logs()
     # In case we want to write a log now we can use the 'real_time=True' flag.
