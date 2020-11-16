@@ -986,7 +986,7 @@ def check_integration(client, server_url, demisto_user, demisto_pass, integratio
     return playbook_state, inc_id
 
 
-def disable_all_integrations(dem_client, prints_manager, thread_index=0):
+def disable_all_integrations(dem_client, prints_manager=None, thread_index=0):
     """
     Disable all enabled integrations. Should be called at start of test loop to start out clean
 
@@ -1000,23 +1000,34 @@ def disable_all_integrations(dem_client, prints_manager, thread_index=0):
                                                        body=body)
         int_instances = ast.literal_eval(int_resp[0])
     except requests.exceptions.RequestException as conn_err:
-        error_message = 'Failed to disable all integrations, error trying to communicate with demisto server: ' \
-                        '{} '.format(conn_err)
-        prints_manager.add_print_job(error_message, print_error, thread_index)
+        if prints_manager:
+            error_message = 'Failed to disable all integrations, error trying to communicate with demisto server: ' \
+                            f'{conn_err}'
+            prints_manager.add_print_job(error_message, print_error, thread_index)
+        else:
+            logging.exception('Failed to disable all integrations, error trying to communicate with demisto server')
         return
     if int(int_resp[1]) != 200:
-        error_message = 'Get all integration instances failed with status code: {}'.format(int_resp[1])
-        prints_manager.add_print_job(error_message, print_error, thread_index)
+        error_message = f'Get all integration instances failed with status code: {int_resp[1]}'
+        if prints_manager:
+            prints_manager.add_print_job(error_message, print_error, thread_index)
+        else:
+            logging.error(error_message)
         return
     if 'instances' not in int_instances:
-        prints_manager.add_print_job("No integrations instances found to disable all", print, thread_index)
+        if prints_manager:
+            prints_manager.add_print_job("No integration instances found to disable all", print, thread_index)
+        else:
+            logging.info("No integration instances found to disable")
         return
     to_disable = []
     for instance in int_instances['instances']:
         if instance.get('enabled') == 'true' and instance.get("isIntegrationScript"):
-            add_to_disable_message = "Adding to disable list. Name: {}. Brand: {}".format(instance.get("name"),
-                                                                                          instance.get("brand"))
-            prints_manager.add_print_job(add_to_disable_message, print, thread_index)
+            name = instance.get("name")
+            brand = instance.get("brand")
+            add_to_disable_message = f'Adding to disable list. Name: {name}. Brand: {brand}'
+            if prints_manager:
+                prints_manager.add_print_job(add_to_disable_message, print, thread_index)
             to_disable.append(instance)
     if len(to_disable) > 0:
         __disable_integrations_instances(dem_client, to_disable, prints_manager, thread_index=thread_index)

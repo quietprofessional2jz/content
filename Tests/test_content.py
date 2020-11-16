@@ -39,7 +39,7 @@ except ModuleNotFoundError:
     from slackclient import SlackClient  # Old slack
 
 from Tests.mock_server import MITMProxy, AMIConnection
-from Tests.test_integration import Docker, check_integration, disable_all_integrations
+from Tests.test_integration import Docker, check_integration
 from Tests.test_dependencies import get_used_integrations, get_tests_allocation_for_threads
 from demisto_sdk.commands.common.constants import RUN_ALL_TESTS_FORMAT, FILTER_CONF, PB_Status
 from demisto_sdk.commands.common.tools import print_color, print_error, print_warning, \
@@ -898,7 +898,6 @@ def execute_testing(tests_settings, server_ip, mockable_tests_names, unmockable_
     skipped_integration = set([])
     playbook_skipped_integration = set([])
 
-    disable_all_integrations(xsoar_client, prints_manager, thread_index=thread_index)
     prints_manager.execute_thread_prints(thread_index)
     mockable_tests = get_test_records_of_given_test_names(tests_settings, mockable_tests_names)
     unmockable_tests = get_test_records_of_given_test_names(tests_settings, unmockable_tests_names)
@@ -1519,13 +1518,6 @@ def main():
     install_simple_logging()
     print("Time is: {}\n\n\n".format(datetime.datetime.now()))
     tests_settings = options_handler()
-
-    # should be removed after solving: https://github.com/demisto/etc/issues/21383
-    # -------------
-    if 'master' in tests_settings.serverVersion.lower():
-        print('[{}] sleeping for 30 secs'.format(datetime.datetime.now()))
-        sleep(45)
-    # -------------
     manage_tests(tests_settings)
 
 

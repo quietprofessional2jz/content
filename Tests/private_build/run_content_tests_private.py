@@ -13,7 +13,7 @@ import demisto_client.demisto_api
 from demisto_client.demisto_api.rest import ApiException
 
 from Tests.scripts.utils.log_util import install_simple_logging
-from Tests.test_integration import Docker, check_integration, disable_all_integrations
+from Tests.test_integration import Docker, check_integration
 from demisto_sdk.commands.common.constants import PB_Status
 from demisto_sdk.commands.common.tools import print_color, print_error, print_warning, \
     LOG_COLORS, str2bool
@@ -325,8 +325,6 @@ def execute_testing(tests_settings: SettingsTester, server_ip: str, all_tests: s
     skipped_integration = set([])
     playbook_skipped_integration = set([])
 
-    disable_all_integrations(xsoar_client, prints_manager, thread_index=thread_index)
-    prints_manager.execute_thread_prints(thread_index)
     #  Private builds do not use mocking. Here we copy the mocked test list to the unmockable list.
     private_tests = get_test_records_of_given_test_names(tests_settings, all_tests)
     try:
